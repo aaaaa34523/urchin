@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>海胆跳舞小游戏</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  overflow:hidden;
+  background:#87CEF0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+#game{
+  width:100vw;
+  height:100vh;
+  position:relative;
+  overflow:hidden;
+}
+.urchin{
+  width:180px;
+  height:180px;
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:160px;
+  text-align:center;
+  transition:all 0.1s ease;
+}
+.dance1{ animation: dance1 0.4s infinite; }
+.dance2{ animation: dance2 0.3s infinite; }
+.dance3{ animation: dance3 0.2s infinite; }
+.ssr{ animation: ssr 0.15s infinite; filter:drop-shadow(0 0 20px gold); }
+
+@keyframes dance1{
+  0%,100%{transform:translate(-50%,-50%) rotate(-8deg);}
+  50%{transform:translate(-50%,-50%) rotate(8deg);}
+}
+@keyframes dance2{
+  0%,100%{transform:translate(-50%,-45%);}
+  50%{transform:translate(-50%,-55%);}
+}
+@keyframes dance3{
+  0%{transform:translate(-50%,-50%) rotate(0deg);}
+  100%{transform:translate(-50%,-50%) rotate(360deg);}
+}
+@keyframes ssr{
+  0%{transform:translate(-50%,-50%) scale(1) rotate(0deg);}
+  50%{transform:translate(-50%,-50%) scale(1.15) rotate(180deg);}
+  100%{transform:translate(-50%,-50%) scale(1) rotate(360deg);}
+}
+.bubble{
+  position:absolute;
+  border-radius:50%;
+  background:rgba(255,255,255,0.6);
+  animation:bubbleUp 4s linear infinite;
+}
+@keyframes bubbleUp{
+  0%{opacity:0;bottom:-20px;}
+  20%{opacity:1;}
+  100%{bottom:100vh;opacity:0;}
+}
+.score-text{
+  position:absolute;
+  top:30px;
+  width:100%;
+  text-align:center;
+  font-size:22px;
+  color:#fff;
+  font-weight:bold;
+  text-shadow:0 0 6px #4488cc;
+}
+.tip{
+  position:absolute;
+  bottom:80px;
+  width:100%;
+  text-align:center;
+  color:#fff;
+  font-size:16px;
+  text-shadow:0 0 4px #333;
+}
+.audio-btn{
+  position:absolute;
+  bottom:30px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(255,255,255,0.35);
+  color:#fff;
+  border:none;
+  padding:6px 14px;
+  border-radius:99px;
+  font-size:14px;
+}
+</style>
+</head>
+<body>
+<div id="game">
+  <div class="score-text">得分：0</div>
+  <div class="urchin">🪸</div>
+  <div class="tip">点击屏幕，海胆跳舞！</div>
+  <button class="audio-btn" id="audioBtn">开启音乐</button>
+</div>
+
+<script>
+const urchin = document.querySelector('.urchin')
+const scoreText = document.querySelector('.score-text')
+const game = document.getElementById('game')
+const audioBtn = document.getElementById('audioBtn')
+
+let score = 0
+let clickSpeed = 0
+let musicOn = false
+// 微信要求：音乐必须用户手动触发播放
+const audio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3')
+audio.loop = true
+
+audioBtn.onclick = ()=>{
+  if(!musicOn){
+    audio.play()
+    audioBtn.innerText = "关闭音乐"
+    musicOn = true
+  }else{
+    audio.pause()
+    audioBtn.innerText = "开启音乐"
+    musicOn = false
+  }
+}
+
+// 随机泡泡
+function createBubble(){
+  let b = document.createElement('div')
+  b.className = 'bubble'
+  let size = Math.random()*15+5
+  b.style.width = size+'px'
+  b.style.height = size+'px'
+  b.style.left = Math.random()*100+'%'
+  b.style.animationDuration = (Math.random()*3+3)+'s'
+  game.appendChild(b)
+  setTimeout(()=>b.remove(),4000)
+}
+setInterval(createBubble,300)
+
+// 点击跳舞
+game.addEventListener('touchstart',playDance)
+game.addEventListener('mousedown',playDance)
+
+function playDance(){
+  score += 1
+  scoreText.innerText = "得分："+score
+
+  if(score > 80){
+    urchin.className = 'urchin ssr'
+  }else if(score > 40){
+    urchin.className = 'urchin dance3'
+  }else if(score >15){
+    urchin.className = 'urchin dance2'
+  }else{
+    urchin.className = 'urchin dance1'
+  }
+
+  clearTimeout(urchin.timer)
+  urchin.timer = setTimeout(()=>{
+    urchin.className = 'urchin'
+  },600)
+}
+</script>
+</body>
+</html>
